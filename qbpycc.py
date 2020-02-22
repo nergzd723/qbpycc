@@ -155,6 +155,8 @@ def main():
         verbose = True
         print("QBpycc: QBasic interpreter to native x86 assembly using Linux syscalls")
         print("Accessing sources...")
+    if "--help" in sys.argv:
+        print("Additional args:\n-f -comment the process in the temporary file\n-T - pass the document to stdout\n-v - more verbosity\n-s - save temporary files")
     try:
         r = sys.argv[1:]
         source = r[0]
@@ -184,7 +186,8 @@ def main():
         print(shee)
     os.system("ld qbpycc.o -o "+output)
     sourcehandle.close()
-    os.remove("qbpycc.o")
-    os.remove("qbpycc.tmp")
+    if "-s" not in sys.argv:
+        os.remove("qbpycc.o")
+        os.remove("qbpycc.tmp")
 if __name__ == "__main__":
     main()
