@@ -64,10 +64,13 @@ class Nasmsheet:
         self.varcontent = []
         self.mctr = 0
         self.fcc = isFullcc
+        self.varb = ""
     def interpret(self, keyword):
         if keyword[:3] == "REM" or keyword[:1] == "'":
-            keyword1 = keyword[3:]
-            self.text = self.text + ";"+keyword1
+            keyword1 = keyword[1:]
+            if keyword1[0] == "E":
+                keyword1 = keyword1[2:]
+            self.text = self.text + ";"+keyword1+"\n"
             return
         elif keyword[:5] == "INPUT":
             if self.fcc:
@@ -95,11 +98,9 @@ class Nasmsheet:
             for letter in keyword:
                 if letter == ";" and (keyword[keyword.index(letter)-1]  == '"' or keyword[keyword.index(letter)-1]  == "'"):
                     vari = keyword[keyword.index(letter)+1:]
-                    if vari in self.var:
-                        self.printstring = self.printstring + self.varcontent[self.var.index(vari)]
-                    else:
-                        self.text = self.text + "mov rax, 1\nmov rdi, 1\nmov rsi, {}\nmov rdx, 1024\nsyscall\n".format(vari)
                     keyword = keyword.split(";")[0]
+                    varflag = True
+                    self.varb = vari
             if '"' not in keyword:
                 for letter in keyword:
                     if letter.isdigit():
@@ -126,6 +127,14 @@ class Nasmsheet:
             self.mctr += 1
             self.text = self.text + "mov rax, 1\nmov rdi, 1\nmov rsi, {}\nmov rdx, {}\nsyscall\n".format("printstring"+str(self.mctr), len(self.printstring)+1)
             self.printstring = ""
+            if varflag:
+                vari = self.varb
+                # indexable by compiler
+                if vari in self.var:
+                    self.printstring = self.printstring + self.varcontent[self.var.index(vari)]
+                # not indexable by compiler or doesnt exist AT ALL
+                else:
+                    self.text = self.text + "mov rax, 1\nmov rdi, 1\nmov rsi, {}\nmov rdx, 1024\nsyscall\n".format(vari)
         elif keyword[:3] == "LET":
             if self.fcc:
                 self.text = self.text + ";;;;;;;;;;;;;;;;;;;;\n;{}\n;;;;;;;;;;;;;;;;;;;;\n".format(keyword)
@@ -133,7 +142,9 @@ class Nasmsheet:
             keyword1 = keyword1.replace(" ", "")
             varname = keyword1.split("=")[0]
             varc = keyword1.split("=")[1]
-            self.data = self.data + varname+ ': db "{}", 10'.format(varc)
+            self.data = self.data + varname+ ': db "{}", 10\n'.format(varc)
+            self.var.append(varname)
+            self.varcontent.append(varc)
         else:
             raise CCerr("Not implemented or not an instruction", keyword)
 

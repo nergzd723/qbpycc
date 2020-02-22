@@ -7,5 +7,8 @@ PRINT 158*158115814*21313
 INPUT "What is your name? ";inr
 PRINT "Your name is ";inr
 PRINT "Hello, ";inr
+REM Just a comment, LOL
+' Just a comment too!
 LET a = 1
+PRINT a+1
 END
