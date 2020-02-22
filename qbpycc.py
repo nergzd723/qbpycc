@@ -87,7 +87,7 @@ class Nasmsheet:
                     if vari in self.var:
                         self.printstring = self.printstring + self.varcontent[self.var.index(vari)]
                     else:
-                        self.text = self.text + "mov rax, 4\nmov rbx, 1\nmov rcx, {}\nmov rdx, 1024\nsyscall\n".format(vari)
+                        self.text = self.text + "mov rax, 1\nmov rdi, 1\nmov rsi, {}\nmov rdx, 1024\nsyscall\n".format(vari)
                     keyword = keyword.split(";")[0]
             if '"' not in keyword:
                 for letter in keyword:
